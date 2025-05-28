@@ -10,7 +10,7 @@ const LandingPage = () => {
         <img
           src="/logo.png"
           alt="App Logo"
-          className="w-40 h-40 mb--8"
+          className="w-40 h-40 mb--8 rounded-full shadow-lg object-cover"
         />
         <h1 className="text-5xl font-extrabold mb-4 drop-shadow-lg">
           Career Preference Tests
