@@ -1,6 +1,12 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html",
+      "missing": [
+        { "type": "file" }
+      ]
+    }
   ],
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
