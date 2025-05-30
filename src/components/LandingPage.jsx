@@ -8,11 +8,11 @@ const LandingPage = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-cyan-300 to-cyan-900 text-white p-4">
       <div className="text-center max-w-2xl mx-auto">
-        <div className="relative w-48 h-48 mx-auto mb-8">
+        <div className="relative w-48 h-48 mx-auto mb-8 overflow-hidden rounded-full shadow-xl">
           <img
             src="/logo.png"
             alt="NextU Empower Logo"
-            className="w-full h-full object-contain rounded-full shadow-xl hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = "https://via.placeholder.com/200?text=NextU+Empower";
