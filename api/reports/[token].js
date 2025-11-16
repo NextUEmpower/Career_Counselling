@@ -33,38 +33,36 @@ export default async function handler(req, res) {
         });
       } catch (dbError) {
         console.error('Database error querying streamAssessment for token', normalizedToken, ':', dbError);
-        return res.status(500).json({ error: 'Database error while querying stream assessment' });
+        // Log the error but continue to check for regular assessment instead of failing
+        streamAssessment = null;
       }
 
       if (streamAssessment) {
-        // Validate VHSC data structure
+        // Validate and sanitize VHSC data structure
         try {
-          // Ensure JSON fields are valid
-          if (streamAssessment.aptitudeScores && typeof streamAssessment.aptitudeScores !== 'object') {
-            throw new Error('Invalid aptitudeScores format');
-          }
-          if (streamAssessment.interestScores && typeof streamAssessment.interestScores !== 'object') {
-            throw new Error('Invalid interestScores format');
-          }
-          if (streamAssessment.academicPerformance && typeof streamAssessment.academicPerformance !== 'object') {
-            throw new Error('Invalid academicPerformance format');
-          }
-          if (streamAssessment.personalityTraits && typeof streamAssessment.personalityTraits !== 'object') {
-            throw new Error('Invalid personalityTraits format');
-          }
-          if (streamAssessment.contextualInputs && typeof streamAssessment.contextualInputs !== 'object') {
-            throw new Error('Invalid contextualInputs format');
-          }
+          // Ensure JSON fields are valid objects; set to empty object if invalid
+          const sanitizedData = { ...streamAssessment };
+          const fields = ['aptitudeScores', 'interestScores', 'academicPerformance', 'personalityTraits', 'contextualInputs'];
+          fields.forEach(field => {
+            if (!sanitizedData[field] || typeof sanitizedData[field] !== 'object') {
+              console.warn(`Invalid or missing ${field} for VHSC token ${normalizedToken}; setting to empty object`);
+              sanitizedData[field] = {};
+            }
+          });
+          streamAssessment = sanitizedData;
         } catch (validationError) {
-          console.error('Data validation error for VHSC assessment token', normalizedToken, ':', validationError.message);
-          return res.status(500).json({ error: 'Invalid data format in stream assessment' });
+          console.error('Data sanitization error for VHSC assessment token', normalizedToken, ':', validationError.message);
+          // Log error but proceed with sanitized data or skip to regular assessment
+          streamAssessment = null;
         }
 
-        // Return VHSC assessment data
-        return res.status(200).json({
-          assessmentType: 'vhsc',
-          data: streamAssessment,
-        });
+        if (streamAssessment) {
+          // Return VHSC assessment data
+          return res.status(200).json({
+            assessmentType: 'vhsc',
+            data: streamAssessment,
+          });
+        }
       }
 
       // Check if token exists in AccessToken table (for validation)
